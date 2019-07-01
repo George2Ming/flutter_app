@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:myapp/dao/home_dao.dart';
+import 'package:myapp/widget/grid_nav.dart';
+import 'dart:convert';
+
+import 'package:myapp/model/home_model.dart';
+
 const APPBAR_SCROLL_OFFSET = 100; //最大滚动距离
 
 class HomePage extends StatefulWidget{
@@ -20,7 +26,10 @@ class _TabNavigatorState extends State<HomePage>{
 
   // appbar的透明度
   double appBarAlpha = 0;
-
+  
+  // 服务端请求结果
+  String resultString ;
+  
   // 滚动触发
   _onScroll(offset){
     double alpha = offset/APPBAR_SCROLL_OFFSET;
@@ -33,7 +42,31 @@ class _TabNavigatorState extends State<HomePage>{
       appBarAlpha = alpha;
     });
   }
-
+  
+  // 获取首页数据
+  loadData() async {
+//    HomeDao.fetch().then((result) => {
+//      setState(() {
+//        resultString = json.encode(result);
+//      })
+//    }).catchError((e){
+//      setState(() {
+//        resultString = json.encode(e);
+//      });
+//    });
+    HomeModel model = await HomeDao.fetch();
+    print(json.encode(model.config));
+    setState(() {
+      resultString = json.encode(model.config);
+    });
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +99,7 @@ class _TabNavigatorState extends State<HomePage>{
                         pagination: SwiperPagination(),
                       ),
                     ),
+                    GridNav(gridNavModel: null,name:'12'),
                     // 下面
                     Container(
                       height: 800,
