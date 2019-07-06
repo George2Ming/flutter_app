@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:myapp/dao/home_dao.dart';
+import 'package:myapp/model/common_model.dart';
 import 'package:myapp/widget/grid_nav.dart';
 import 'dart:convert';
 
 import 'package:myapp/model/home_model.dart';
+import 'package:myapp/widget/local_nav.dart';
 
 const APPBAR_SCROLL_OFFSET = 100; //最大滚动距离
 
@@ -26,7 +28,9 @@ class _TabNavigatorState extends State<HomePage>{
 
   // appbar的透明度
   double appBarAlpha = 0;
-  
+
+  List<CommonModel> localNavList = [];
+
   // 服务端请求结果
   String resultString ;
   
@@ -54,11 +58,15 @@ class _TabNavigatorState extends State<HomePage>{
 //        resultString = json.encode(e);
 //      });
 //    });
-    HomeModel model = await HomeDao.fetch();
-    print(json.encode(model.config));
-    setState(() {
-      resultString = json.encode(model.config);
-    });
+    try {
+      HomeModel model = await HomeDao.fetch();
+      print(json.encode(model.config));
+      setState(() {
+        localNavList = model.localNavList;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
   
   @override
@@ -70,6 +78,7 @@ class _TabNavigatorState extends State<HomePage>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xfff2f2f2),
       body: Stack(
         children: <Widget>[
           MediaQuery.removePadding(
@@ -99,7 +108,10 @@ class _TabNavigatorState extends State<HomePage>{
                         pagination: SwiperPagination(),
                       ),
                     ),
-                    GridNav(gridNavModel: null,name:'12'),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
+                      child: LocalNav(localNavList: localNavList),
+                    ),
                     // 下面
                     Container(
                       height: 800,
